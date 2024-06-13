@@ -11,30 +11,33 @@ def main():
             if name in [player[0] for player in players]:
                 print(f"The name '{name}' is already taken. Please enter a different name.")
             else:
-                player = Player(name, 0, 0)
+                player = Player(name, 0, 0, 0)
                 players.append((name, player))
                 break
 
+    # Randomly select one player to be the last
     last_player = random.choice(players)
     players.remove(last_player)
 
+    # Shuffle the remaining players
     random.shuffle(players)
 
+    # Add the last player to the end of the list
     players.append(last_player)
+
     deck = Deck()
 
-
-    # Distribute 9 cards to players
-    for name, player in players:
+    # Distribute 9 cards to each player
+    for _, player in players:
         cards = deck.draw_cards(9)
         player.add_cards_to_hand(cards)
 
-    # 1st player selects a trump and says his say
+    # First player selects a trump and makes their say
     first_player = players[0][1]
     first_player_first_three_cards = first_player.hand[:3]
     print(f"{first_player.name}'s first 3 cards: {first_player_first_three_cards}")
 
-    # validate trump
+    # Validate trump selection
     while True:
         trump = input("Select a trump (S, H, D, C): ").upper()
         if trump in ["S", "H", "D", "C"]:
@@ -43,7 +46,7 @@ def main():
         else:
             print("Invalid trump. Please enter S, H, D, or C.")
 
-    # validate 1st player's say
+    # Validate first player's say
     while True:
         try:
             say = int(input(f"{first_player.name}, enter your say (0 to 9): "))
@@ -57,26 +60,71 @@ def main():
 
     total_say = first_player.say
 
-    # The rest players say their say
-    for name, player in players[1:]:
+    # The rest of the players make their say
+    for i, (name, player) in enumerate(players[1:], start=1):
         print(f"{player.name}'s hand: {player.hand}")
         while True:
             try:
-                max_say = 9 - total_say
-                say = int(input(f"{player.name}, enter your say (0 to {max_say}): "))
-                if 0 <= say <= max_say:
-                    player.say = say
-                    total_say += say
-                    break
+                if i == len(players) - 1:
+                    # Last player
+                    remaining_say = 9 - total_say
+                    print(f"Remaining say should not make the total exactly 9.")
+                    say = int(input(f"{player.name}, enter your say: "))
+                    if total_say + say != 9:
+                        player.say = say
+                        total_say += say
+                        break
+                    else:
+                        print(f"Invalid say. The total say should not be exactly 9.")
                 else:
-                    print(f"Invalid say. Please enter a number between 0 and {max_say}.")
+                    max_say = 9 - total_say  # Restrict say to prevent total say from being 9
+                    say = int(input(f"{player.name}, enter your say (0 to {max_say}): "))
+                    if 0 <= say <= max_say:
+                        player.say = say
+                        total_say += say
+                        break
+                    else:
+                        print(f"Invalid say. Please enter a number between 0 and {max_say}.")
             except ValueError:
                 print(f"Invalid input. Please enter a number between 0 and {max_say}.")
 
-    # Display the final state of players
-    for _, player in players:
-        print(f"{player.name}'s hand: {player.hand}, trump: {player.trump}, say: {player.say}")
+    total_rounds = 4
+    current_round = 1
+    while current_round <= total_rounds:
+        print(f"\nRound {current_round}")
+        table_cards = []
+        leading_color = None
 
+        for name, player in players:
+            must_win = player.rounds_won < player.say
+            if not table_cards:
+                # First player in the round
+                card = player.choose_card(None, first_player.trump)
+                leading_color = card.color
+            else:
+                # Following players in the round
+                card = player.choose_card(leading_color, first_player.trump)
+            table_cards.append((name, card))
+            print(f"{name} plays {card}")
+
+        # Determine the winner of the round
+        highest_card = max(
+            (card for name, card in table_cards if card.color == leading_color or card.color == first_player.trump),
+            key=lambda card: Player("temp", 0, 0, 0).card_value(card, first_player.trump)
+        )
+        round_winner = next(name for name, card in table_cards if card == highest_card)
+        print(f"{round_winner} wins the round with {highest_card}")
+
+        for name, player in players:
+            if player.name == round_winner:
+                player.rounds_won += 1
+                break
+
+        current_round += 1
+
+    # Display final results
+    for _, player in players:
+        print(f"{player.name}: rounds won = {player.rounds_won}, say = {player.say}")
 
 if __name__ == "__main__":
     main()
