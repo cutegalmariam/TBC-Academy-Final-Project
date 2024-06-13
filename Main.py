@@ -88,6 +88,7 @@ def main():
             except ValueError:
                 print(f"Invalid input. Please enter a number between 0 and {max_say}.")
 
+    # Start the game rounds
     total_rounds = 4
     current_round = 1
     while current_round <= total_rounds:
@@ -109,7 +110,7 @@ def main():
 
         # Determine the winner of the round
         highest_card = max(
-            (card for name, card in table_cards if card.color == leading_color or card.color == first_player.trump),
+            (card for name, card in table_cards if card.color == leading_color or card.color == first_player.trump or card.value == "Joker"),
             key=lambda card: Player("temp", 0, 0, 0).card_value(card, first_player.trump)
         )
         round_winner = next(name for name, card in table_cards if card == highest_card)

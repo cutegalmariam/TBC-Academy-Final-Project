@@ -15,8 +15,8 @@ class Deck:
         deck = [Card(value, color) for color in self.CARD_COLORS for value in self.CARD_VALUES
                 if (str(value), color) not in excluded_cards]
         # Add Jokers
-        deck.append(Card("Joker", "Black"))
-        deck.append(Card("Joker", "Red"))
+        deck.append(Card("JOKER", "BLACK"))
+        deck.append(Card("JOKER", "RED"))
         return deck
 
     def show_deck(self):

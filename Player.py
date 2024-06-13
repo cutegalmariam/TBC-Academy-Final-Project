@@ -22,36 +22,52 @@ class Player:
     def choose_card(self, leading_color, trump):
         while True:
             print(f"Your hand: {self.hand}")
-            card_input = input(f"{self.name}, choose a card to play (e.g., 9H for 9 of Hearts): ").upper()
-            if len(card_input) >= 2 or card_input == "JOKERRED" or card_input == "JOKERBLACK":
-                value = int(card_input[:-1]) if card_input[:-1].isdigit() else card_input[:-1]
+            card_input = input(f"{self.name}, choose a card to play (e.g., 9H for 9 of Hearts, or JokerRed, JokerBlack): ").strip().upper()
+
+            # Handle Joker input separately
+            if card_input == "JOKERRED" or card_input == "JOKERBLACK":
+                value = "JOKER"
+                color = card_input[5:]
+            elif len(card_input) >= 2 and (card_input[:-1].isdigit() or card_input[:-1] in ["A", "J", "Q", "K"]):
+                value_str = card_input[:-1]
                 color = card_input[-1]
-                chosen_card = Card(value, color)
-                # print(type(self.hand[0]))
-                if chosen_card in self.hand:
+
+                try:
+                    value = int(value_str) if value_str.isdigit() else value_str
+                except ValueError:
+                    print("Invalid card value. Please try again.")
+                    continue
+            else:
+                print("Invalid input. Please enter a card in the format value+color (e.g., 9H or JokerRed, JokerBlack).")
+                continue
+
+            chosen_card = Card(value, color)
+            # Check if the chosen card is in the player's hand
+            if chosen_card in self.hand:
+                if leading_color:
                     # Check if the player has the leading color or trump
                     has_leading_color = any(card.color == leading_color for card in self.hand)
                     has_trump = any(card.color == trump for card in self.hand)
-
-                    if leading_color:
-                        if chosen_card.color == leading_color or chosen_card.color == trump:
-                            self.hand.remove(chosen_card)
-                            return chosen_card
-                        elif not has_leading_color and not has_trump:
-                            self.hand.remove(chosen_card)
-                            return chosen_card
-                        else:
-                            print(f"You must follow the leading color: {leading_color} or play a trump: {trump}.")
-                    else:
+                    # Problem here 2nd joker cant take over 1st one
+                    if chosen_card.color == leading_color or chosen_card.color == trump or chosen_card.color == "JOKER":
                         self.hand.remove(chosen_card)
                         return chosen_card
+                    elif not has_leading_color and not has_trump:
+                        self.hand.remove(chosen_card)
+                        return chosen_card
+                    else:
+                        print(f"You must follow the leading color: {leading_color} or play a trump: {trump}.")
                 else:
-                    print("Invalid card. Please choose a card from your hand.")
+                    self.hand.remove(chosen_card)
+                    return chosen_card
             else:
-                print("Invalid input. Please enter a card in the format value+color (e.g., 9H).")
+                print("Invalid card. Please choose a card from your hand.")
 
 
     def card_value(self, card, trump):
-        value_order = {6: 0, 7: 1, 8: 2, 9: 3, 10: 4, "A": 5, "J": 6, "Q": 7, "K": 8}
+        value_order = {6: 0, 7: 1, 8: 2, 9: 3, 10: 4, "J": 5, "Q": 6, "K": 7, "A": 8}
+        if card.value == "JOKER":
+            return 100  # Assign a high value to jokers
         trump_bonus = 10 if card.color == trump else 0
         return value_order[card.value] + trump_bonus
+
