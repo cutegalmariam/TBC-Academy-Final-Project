@@ -49,6 +49,7 @@ def main():
     # Validate first player's say
     while True:
         try:
+            print(f"{first_player.name}'s hand: {first_player.hand}")
             say = int(input(f"{first_player.name}, enter your say (0 to 9): "))
             if 0 <= say <= 9:
                 first_player.say = say
@@ -101,7 +102,7 @@ def main():
             if not table_cards:
                 # First player in the round
                 card = player.choose_card(None, first_player.trump)
-                leading_color = card.color
+                leading_color = card.color if card.color != "BLACK" and card.color != "RED" else None
             else:
                 # Following players in the round
                 card = player.choose_card(leading_color, first_player.trump)
@@ -110,8 +111,8 @@ def main():
 
         # Determine the winner of the round
         highest_card = max(
-            (card for name, card in table_cards if card.color == leading_color or card.color == first_player.trump or card.value == "Joker"),
-            key=lambda card: Player("temp", 0, 0, 0).card_value(card, first_player.trump)
+            (card for name, card in reversed(table_cards) if card.color == leading_color or card.color == first_player.trump or card.value == "JOKER"),
+            key=lambda card: card.card_value(first_player.trump)
         )
         round_winner = next(name for name, card in table_cards if card == highest_card)
         print(f"{round_winner} wins the round with {highest_card}")

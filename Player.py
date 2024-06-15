@@ -49,7 +49,7 @@ class Player:
                     has_leading_color = any(card.color == leading_color for card in self.hand)
                     has_trump = any(card.color == trump for card in self.hand)
                     # Problem here 2nd joker cant take over 1st one
-                    if chosen_card.color == leading_color or chosen_card.color == trump or chosen_card.color == "JOKER":
+                    if chosen_card.color == leading_color or chosen_card.color == trump or chosen_card.value == "JOKER":
                         self.hand.remove(chosen_card)
                         return chosen_card
                     elif not has_leading_color and not has_trump:
@@ -62,12 +62,3 @@ class Player:
                     return chosen_card
             else:
                 print("Invalid card. Please choose a card from your hand.")
-
-
-    def card_value(self, card, trump):
-        value_order = {6: 0, 7: 1, 8: 2, 9: 3, 10: 4, "J": 5, "Q": 6, "K": 7, "A": 8}
-        if card.value == "JOKER":
-            return 100  # Assign a high value to jokers
-        trump_bonus = 10 if card.color == trump else 0
-        return value_order[card.value] + trump_bonus
-
