@@ -130,5 +130,12 @@ def main():
     for _, player in players:
         print(f"{player.name}: rounds won = {player.rounds_won}, say = {player.say}")
 
+    for _, player in players:
+        say = player.say
+        taken = player.rounds_won
+        player.score += card.SAY_TAKEN_SCORES[say][taken]
+        print(f"{player.name}: rounds won = {player.rounds_won}, say = {player.say}, final score = {player.score}")
+
+
 if __name__ == "__main__":
     main()
