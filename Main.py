@@ -117,9 +117,11 @@ def main():
         round_winner = next(name for name, card in table_cards if card == highest_card)
         print(f"{round_winner} wins the round with {highest_card}")
 
-        for name, player in players:
+        for i, (name, player) in enumerate(players):
             if player.name == round_winner:
                 player.rounds_won += 1
+                # Rotate players so winner starts next
+                players = players[i:] + players[:i]
                 break
 
         current_round += 1
