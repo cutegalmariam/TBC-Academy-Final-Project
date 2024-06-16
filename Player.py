@@ -62,3 +62,11 @@ class Player:
                     return chosen_card
             else:
                 print("Invalid card. Please choose a card from your hand.")
+
+    def __eq__(self, other):
+        if isinstance(other, Card):
+            return self.name == other.name
+        return False
+
+    def __hash__(self):
+        return hash(self.name)
