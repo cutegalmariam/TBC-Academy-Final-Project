@@ -30,12 +30,12 @@ def main():
     score_board = ScoreBoard(players)
 
     # Distribute 9 cards to each player
-    main_rounds = 4
-    current_main_round = 0
+    main_rounds = 5
+    current_main_round = 1
     while current_main_round <= main_rounds:
         deck = Deck()
         for player in players:
-            cards = deck.draw_cards(2)
+            cards = deck.draw_cards(9)
             player.add_cards_to_hand(cards)
 
         # First player selects a trump and makes their say
@@ -93,7 +93,7 @@ def main():
                     print(f"Invalid input. Please enter a number between 0 and {max_say}.")
 
         # Start the game rounds
-        total_rounds = 2
+        total_rounds = 9
         current_round = 1
         while current_round <= total_rounds:
             print(f"\nRound {current_round}")
@@ -129,18 +129,21 @@ def main():
 
             current_round += 1
 
-        # Display final results
-        for player in players:
-            print(f"{player.name}: rounds won = {player.rounds_won}, say = {player.say}")
-
         for player in players:
             say = player.say
             taken = player.rounds_won
             score_board.log_result_for_player(player, say, taken)
-            print(f"{player.name}: rounds won = {player.rounds_won}, say = {player.say}, final score = {player.score}")
-        current_main_round += 1
+            # reset say and rounds won
+            player.rounds_won = 0
+            player.say = None
+
+        # Add bonus points after each 4 rounds
+        if current_main_round % 4 == 0:
+            score_board.check_and_add_if_needed_bonus_points()
+
         score_board.display_score_board()
 
+        current_main_round += 1
 
 if __name__ == "__main__":
     main()

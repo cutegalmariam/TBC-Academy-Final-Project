@@ -34,18 +34,46 @@ class ScoreBoard:
         )
 
         num_rounds = max(len(results) for results in self.journal.values())
-
-        headers = " | ".join([f"Round {i+1}".ljust(max_result_length) for i in range(num_rounds)])
+        number_of_break_rounds = 0
+        # Build the headers
+        headers = ""
+        for i in range(0, num_rounds):
+            if i != 0 and (i + 1) % 4 == 1:
+                headers += f"Break {int(i/4)}".ljust(max_result_length) + " | "
+                number_of_break_rounds += 1
+            else:
+                headers += f"Round {i + 1 - number_of_break_rounds}".ljust(max_result_length) + " | "
 
         # Print the header row
         print(f"{'Player'.ljust(longest_name_length)} | {headers}")
 
         for player in self.journal.keys():
             results_string = ""
-            for result in self.journal[player]:
+            bonus_index = 16  # Start checking for bonuses after 16 results (4 rounds)
+            for i, result in enumerate(self.journal[player]):
+                if i > 0 and i % 16 == 0:
+                    if bonus_index < len(self.journal[player]) and self.journal[player][bonus_index].say == "Bonus":
+                        bonus_string = f"Bonus={self.journal[player][bonus_index].score}".ljust(max_result_length)
+                        results_string += bonus_string + " | "
+                        bonus_index += 17  # Move to the next set of 16 results + 1 for the next bonus
+                    else:
+                        results_string += " " * max_result_length + " | "
                 results_string += f"{result.say}/{result.taken}={result.score}".ljust(max_result_length) + " | "
 
-            missing_rounds = num_rounds - len(self.journal[player])
-            results_string += (" " * (max_result_length + 3)) * missing_rounds
-
             print(f"{player.name.ljust(longest_name_length)} | {results_string}")
+
+    def check_and_add_if_needed_bonus_points(self):
+        for player, results in self.journal.items():
+            if len(results) >= 4:  # Ensure there are at least 4 rounds to check
+                last_4_rounds = results[-4:]
+                if all(result.say == result.taken for result in last_4_rounds):
+                    # Determine the maximum score from the last 4 results
+                    max_score = max(result.score for result in last_4_rounds)
+                    # Add a bonus HandResult for the player
+                    bonus_result = HandResultForPlayer("Bonus", "Bonus", max_score)
+                    self.journal[player].append(bonus_result)
+                else:
+                    # Add a "no bonus" HandResult for the player
+                    no_bonus_result = HandResultForPlayer("No bonus", "No bonus", 0)
+                    self.journal[player].append(no_bonus_result)
+
