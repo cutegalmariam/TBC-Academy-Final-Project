@@ -26,11 +26,11 @@ def main():
     # Add the last player to the end of the list
     players.append(last_player)
 
-    # deck = Deck()
+
     score_board = ScoreBoard(players)
 
     # Distribute 9 cards to each player
-    main_rounds = 5
+    main_rounds = 16
     current_main_round = 1
     while current_main_round <= main_rounds:
         deck = Deck()
@@ -144,6 +144,7 @@ def main():
         score_board.display_score_board()
 
         current_main_round += 1
+
 
 if __name__ == "__main__":
     main()

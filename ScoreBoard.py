@@ -38,8 +38,8 @@ class ScoreBoard:
         # Build the headers
         headers = ""
         for i in range(0, num_rounds):
-            if i != 0 and (i + 1) % 4 == 1:
-                headers += f"Break {int(i/4)}".ljust(max_result_length) + " | "
+            if i == 4 or i == 9 or i == 14 or i == 19:
+                headers += f"BONUS".ljust(max_result_length) + " | "
                 number_of_break_rounds += 1
             else:
                 headers += f"Round {i + 1 - number_of_break_rounds}".ljust(max_result_length) + " | "
@@ -60,7 +60,7 @@ class ScoreBoard:
                         results_string += " " * max_result_length + " | "
                 results_string += f"{result.say}/{result.taken}={result.score}".ljust(max_result_length) + " | "
 
-            print(f"{player.name.ljust(longest_name_length)} | {results_string}")
+            print(f"{player.name.ljust(6)} | {results_string}")
 
     def check_and_add_if_needed_bonus_points(self):
         for player, results in self.journal.items():
